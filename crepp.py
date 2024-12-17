@@ -1,6 +1,8 @@
 import streamlit as st
 import pickle
 import numpy as np
+import datetime
+
 
 st.title("Real Estate Price Prediction Model")
 st.write("Let's start building!.")
@@ -52,36 +54,33 @@ def main():
                                            "Residential Medium-Density Zone (RM)":5}
     MZZONE_VALUE = MZZONE_MAP[MZZONE]
 
-    QS_ROOMS = st.slider("Quality Of Rooms",min_value = 2.0, max_value = 5.0,value = 2.5,step =0.1)
-    QS_ROOMS_slider_value = [QS_ROOMS] 
 
+    QS_ROOMS = st.slider("Quality Of Rooms", min_value=2.0,max_value = 5.0,value = 2.5,step=0.1)   
     QS_BATHROOM =st.slider("Quality Of Bathrooms",min_value = 2.0, max_value = 5.0,value = 2.5,step =0.1)
-    QS_BATHROOM_slider_value = [QS_BATHROOM]
-
     QS_BEDROOM =st.slider("Quality Of Bedrooms",min_value = 2.0, max_value = 5.0,value = 2.5,step =0.1)
-    QS_BEDROOM_slider_value = [QS_BEDROOM]
-
     QS_OVERALL = st.slider("Overall Quality",min_value = 2.0, max_value = 5.0,value = 2.5,step =0.1)
-    QS_OVERALL_slider_value = [QS_OVERALL]
+    
 
     REG_FEE = st.text_input("Approximate Registration Budget")
     COMMIS = st.text_input("Approximate Commission Budget")
-    year_date_sale = st.text_input("Sale Year")
-    month_date_sale = st.text_input("Sale Month")
-    day_date_sale = st.text_input("Sale Date")
-    week_date_sale = st.selectbox("Week Of Sale",[0,1,2,3,4,5,6])
+    sales_date = st.date_input("Sale Date",min_value=datetime.date(1990,1,1),max_value = datetime.date.today())
+    year_date_sale = sales_date.year
+    month_date_sale = sales_date.month
+    day_date_sale = sales_date.day
+    week_date_sale = sales_date.isocalendar()[1]
+
     build_age = st.text_input("Approximate Building Age")
     
     if st.button("Predict"):
         try:
             features=(AREA_VALUE,float(INT_SQFT), float(DIST_MAINROAD), N_BEDROOM, N_BATHROOM,
           N_ROOM,SALE_COND_VALUE,PARK_FACIL_VALUE, BUILDTYPE_VALUE, UTILITY_AVAIL_VALUE,
-          STREET_VALUE, MZZONE_VALUE, QS_ROOMS_slider_value, QS_BATHROOM_slider_value, 
-          QS_BEDROOM_slider_value,QS_OVERALL_slider_value, float(REG_FEE), 
+          STREET_VALUE, MZZONE_VALUE, QS_ROOMS, QS_BATHROOM, 
+          QS_BEDROOM,QS_OVERALL, float(REG_FEE), 
           float(COMMIS), int(year_date_sale), int(month_date_sale),int(day_date_sale), week_date_sale, 
           int(build_age))
             prediction = ppred(features)
-            st.success("The sale price would approximately be:",prediction)
+            st.success(f"The predicted sale price is approximately: ₹{prediction:.2f}")
         except Exception as e:
             st.error(f"Error:, {e}")
 
@@ -89,4 +88,3 @@ if __name__ == "__main__":
     main()
 
 
-#Error:, setting an array element with a sequence. The requested array has an inhomogeneous shape after 1 dimensions. The detected shape was (23,) + inhomogeneous part.
